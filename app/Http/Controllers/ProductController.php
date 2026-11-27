@@ -2,74 +2,66 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Tampilkan daftar produk.
      */
     public function index()
     {
-        //
-        $products = \App\Models\Product::all();
+        $products = Product::all();
+
         return view('products.index', compact('products'));
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Simpan produk baru.
      */
     public function store(Request $request)
     {
-        //
-        $request->validate([
+        $validated = $request->validate([
             'nama_barang' => 'required|string|max:255',
-            'harga_barang' => 'required|numeric',
-            'stok_barang' => 'required|numeric',
+            'harga_barang' => 'required|numeric|min:0',
+            'stok_barang' => 'required|integer|min:0',
             'deskripsi_barang' => 'nullable|string',
         ]);
-        \App\Models\Product::create($request->all());
+
+        Product::create($validated);
+
         return redirect()->route('products.index')
             ->with('success', 'Barang berhasil ditambahkan.');
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Perbarui produk.
      */
     public function update(Request $request, string $id)
     {
-        //
+        $validated = $request->validate([
+            'nama_barang' => 'required|string|max:255',
+            'harga_barang' => 'required|numeric|min:0',
+            'stok_barang' => 'required|integer|min:0',
+            'deskripsi_barang' => 'nullable|string',
+        ]);
+
+        $product = Product::findOrFail($id);
+        $product->update($validated);
+
+        return redirect()->route('products.index')
+            ->with('success', 'Barang berhasil diperbarui.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Hapus produk.
      */
     public function destroy(string $id)
     {
-        //
+        Product::findOrFail($id)->delete();
+
+        return redirect()->route('products.index')
+            ->with('success', 'Barang berhasil dihapus.');
     }
 }
